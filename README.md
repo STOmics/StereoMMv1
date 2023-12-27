@@ -10,13 +10,16 @@ Specifically, the training process is divided into the following steps: (1) For 
 The generative model for graph data utilizes a graph neural network to learn a distribution of node vector representations (Fig. 1c). These representations are then sampled from the distribution, and the graph is reconstructed using a decoder. By extracting the latent representation from the Variational Graph Autoencoder (VGAE), a high-quality, low-dimensional representation (Z∈R^(n×d), Where d represents the feature dimension after dimensionality reduction) of the graph data is obtained. This feature representation Z can be effectively utilized for various downstream analyses, including clustering, trajectory analysis, and more.
 
 
-First, the process of image should be done
+First, the process of image should be done.
+
 python process_img.py -a example/adata.h5ad -i example/image.tif -o example/image_out -b 100 -c 150 > example/process_img.log
 
 Second, the feature fusion should be run
+
 python __main__.py --rna_data example/adata.h5ad --image_data example/image_out/img_feat.pkl -o example/real_test_nn --epochs 100 --lr 0.0001 --radiu_cutoff 100 --hidden_dims 2048 256 --latent_dim 100 --docoder_type GAT --opt adam --dim_reduction_method high_var --scale zscore --num_head 1 --decoder --brief_att>example/real_test.log 
 
 Last, the data for feature fusion
+
 python __main__.py -t -o example/toy_test --epochs 30 --lr 0.001 --radiu_cutoff 100 --hidden_dims 1028 256 --latent_dim 100 --decoder --gnn_type GCN --opt adam --dim_reduction_method pca --scale zscore --num_heads 4 --brief_att > example/toy_test.log 
 
 
