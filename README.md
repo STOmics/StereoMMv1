@@ -1,7 +1,7 @@
 # StereoMM
 StereoMM is a graph fusion model that can integrate gene expression, histological images, and spatial location. And the information interaction within modalities is strengthened by introducing an attention mechanism. 
 
-!(https://github.com/STOmics/StereoMMv1/tree/main/img/figure1_framwork.png)
+![image](https://github.com/STOmics/StereoMMv1/tree/main/img/figure1_framwork.png)
 
 This framework utilizes a self-supervised generative neural network model. It generates a feature representation that combines multiple modalities, which can be utilized for various downstream tasks to enhance task accuracy. The learning process is guided by a combination of minimizing the self-supervised reconstruction loss and a regularization loss that forces the latent space representation. The reconstruction loss in an autoencoder encourages the generated outputs ((X¬¬¬¬) ̂) to closely resemble the original input matrix (X). In other words, it ensures that the latent features learned by the encoder preserve the maximum information from the original input, then the decoder can reconstruct the original input through these latent features. The regularization loss, also known as the Kullback-Leibler (KL) divergence, encourages the model to learn a compact and smooth latent space representation.
 
