@@ -8,7 +8,7 @@
 
 [Overview](#Overview)
 
-[Environment preparation and package download](#Environment preparation and package download)
+[Environment preparation](#Environment preparation and package download)
 
 [Usage](#Usage)
 
