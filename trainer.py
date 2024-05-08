@@ -27,7 +27,7 @@ class train():
         print('tarining AE')
         loss_list = []
         pbar = tqdm(range(1, self.n_epochs+1),desc='Training model...')
-        current_memory = torch.cuda.memory_allocated() / 1024**2 
+        current_memory = torch.cuda.memory_allocated() / 1024**2  # 转换为MB
         for epoch in pbar:
             self.model.train()
             self.optimizer.zero_grad()
@@ -35,7 +35,7 @@ class train():
             if self.custom_decoder == True:
                 concat_tensor = torch.cat((self.img_tensor,self.rna_tensor),1)
                 recon_loss = self.model.recon_loss(x_hat,concat_tensor)
-                inner_loss = self.model.innerproduct_loss(z,self.edge_index)
+                # inner_loss = self.model.innerproduct_loss(z,self.edge_index)
                 kl_loss = self.model.kl_loss(mean, logvar)
                 loss = recon_loss + (1 / self.img_tensor.shape[0]) * kl_loss #+ inner_loss
             else:
@@ -58,6 +58,7 @@ class train():
                 # if not os.path.exists(attn_out):  
                 #     os.makedirs(attn_out)
                 self.save_attn_weight(epoch, attn_weight, inter=10, out_dir='./')
+
                 #tqdm.set_description("loss: {:.4f}".format(loss.item()))
                 #tqdm.set_postfix(loss=loss.item())
                 #tqdm.set_postfix_str("loss: {:.4f}".format(loss.item()))
@@ -171,6 +172,7 @@ class train():
         #return torch.transpose((torch.transpose(weight,0,1) / weight.sum(1)),0,1)e
         p = q**2 / torch.sum(q, dim=0)
         p = p / torch.sum(p, dim=1, keepdim=True)
+        
         return p
 
     def save_attn_weight(self, epoch, attn_weight, inter=10, out_dir='./'):
@@ -201,4 +203,3 @@ def get_embedding(img_tensor, rna_tensor, edge_index, model):
     vae_emb = z.to('cpu').detach().numpy()
 
     return vae_emb
-
