@@ -39,23 +39,22 @@ class CalculateAttention(nn.Module):
         super().__init__()
 
     def forward(self, Q, K, V, mask=None):
-        attention = torch.matmul(Q,torch.transpose(K, -1, -2))
-        # use mask
-        if mask is not None:
-            attention = attention.masked_fill_(mask, -1e9)
-        attention = torch.softmax(attention / sqrt(Q.size(-1)), dim=-1)
-        attention = torch.matmul(attention,V)
-        return attention
+        with torch.no_grad():
+            x1 = torch.matmul(Q,torch.transpose(K, -1, -2))
+            # use mask
+            if mask is not None:
+                x1 = x1.masked_fill_(mask, -1e9)
+            x1.div_(sqrt(Q.size(-1)))
+            x2 = torch.softmax(x1, dim=-1); del x1;
+            x3 = torch.matmul(x2,V); del x2;  
+        return x3
     
 class Multi_CrossAttention(nn.Module):
-    """
-    forward时，第一个参数用于计算query和key，第二个参数用于计算value
-    """
     def __init__(self,embed_dim,all_head_dim,num_heads):
         super().__init__()
-        self.embed_dim    = embed_dim       # 输入维度
-        self.all_head_dim  = all_head_dim     # 输出维度
-        self.num_heads      = num_heads          # 注意头的数量
+        self.embed_dim    = embed_dim      
+        self.all_head_dim  = all_head_dim     
+        self.num_heads      = num_heads         
         self.h_size         = all_head_dim // num_heads
 
         assert all_head_dim % num_heads == 0
@@ -410,7 +409,6 @@ class FinalModal(nn.Module):
         reconstruction_loss = F.mse_loss(output, input, reduction='mean')
         return reconstruction_loss
     
-    #https://gitcode.net/mirrors/junyanz/pytorch-cyclegan-and-pix2pix/-/blob/master/models/base_model.py
     def print_networks(self, verbose=True):
         """Print the total number of parameters in the network and (if verbose) network architecture
 
@@ -444,14 +442,14 @@ class FinalModal(nn.Module):
                     param.requires_grad = requires_grad
 
 def test_modal():
-    # 创建节点数量和特征维度
     num_nodes = 10
     num_features = 50
 
     img_tensor = torch.randn(num_nodes, num_features)
     rna_tensor = torch.randn(num_nodes, num_features)
-    
+
     edge_index = torch.randint(num_nodes, (2, num_nodes * 2))
+
     edge_index = to_undirected(edge_index)
 
     decoder = Decoder(output_size=50,hidden_sizes=[10,16,32])
