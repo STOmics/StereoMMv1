@@ -25,8 +25,8 @@ StereoMM firstly performs information interaction on transcriptomic and imaging 
 StereoMM relies on pytorch and pyg. In order to create a working environment, we recommend the following installation code：
 
 ```
-conda create -n stereoMM python==3.9
-conda activate stereoMM
+conda create -n StereoMM python==3.9
+conda activate StereoMM
 conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.7 -c pytorch -c nvidia
 conda install pyg -c pyg
 # check gpu availiable
@@ -48,13 +48,14 @@ StereoMMv1/
 ├── trainer.py
 ├── process_img.py
 ├── print_cuda.py
-├── utils.py
 ├── torch_pths
 │   └── resnet50-19c8e357.pth
 ├── example
 │   ├── image.tif
 │   └── adata.h5ad
-└── tutorials.ipynb
+├── Tutorials
+│   └── tutorial.ipynb
+└── utils.py
 ```
 
 Clone the project to your computer:
@@ -97,7 +98,7 @@ python StereoMMv1 -t -o StereoMMv1/example/toy_test --epochs 30 --lr 0.001 --rad
 
 ### Method 2: Run step by step in jupyter-notebook
 
-More details at: [StereoMM tutorial](Tutorial/turotial.ipynb)
+More details at: [StereoMM tutorial](Tutorials/turotial.ipynb)
 
 
 
