@@ -42,6 +42,8 @@ conda install -c conda-forge scanpy python-igraph leidenalg
 
 **Project directory structure**
 
+Users should upload their spatial transcriptomics data (in the form of an h5ad file) and the corresponding registered image files. For this example, the files should be located at `./example/adata.h5ad` and `./example/image.tif`, respectively. If the files are uploaded to different paths, the relevant parameters must be adjusted accordingly.
+
 ```
 StereoMMv1/
 ├── models.py
