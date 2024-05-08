@@ -26,23 +26,23 @@ def generate_adata(X, spatial=None, n_neighbors=20, n_pcs=30):
     sc.pp.neighbors(adata,use_rep='X',n_neighbors=n_neighbors, n_pcs=n_pcs)
     return adata
 
-def find_res_binary(adata, resolution_min, resolution_max, num_clusters, method = 'leiden'):
+def find_res_binary(adata, resolution_min, resolution_max, num_clusters, method = 'leiden',key_added = 'cluster'):
     # Use binary search to find the resolution parameter that satisfies the condition
     if method == 'leiden':
-        sc.tl.leiden(adata, resolution=resolution_max, key_added=method)
+        sc.tl.leiden(adata, resolution=resolution_max, key_added=key_added)
     elif method == 'louvain':
-        sc.tl.louvain(adata, resolution=resolution_max, key_added=method)
-    if int(len(np.unique(adata.obs[method]))) < int(num_clusters):
+        sc.tl.louvain(adata, resolution=resolution_max, key_added=key_added)
+    if int(len(np.unique(adata.obs[key_added]))) < int(num_clusters):
         resolution_max = resolution_max+1
         print('Number of clusters at the maximum resolution is less than %s, adjust maximum resolution to %s' % (num_clusters,resolution_max))
     
     while resolution_min <= resolution_max:
         # Perform Leiden clustering
         resolution = (resolution_min + resolution_max) / 2
-        sc.tl.leiden(adata, resolution=resolution, key_added=method)
+        sc.tl.leiden(adata, resolution=resolution, key_added=key_added)
 
         # Check the number of unique clusters in the clustering result
-        unique_clusters = np.unique(adata.obs[method])
+        unique_clusters = np.unique(adata.obs[key_added])
         
         # Print the current progress
         print(f"Resolution: {resolution_min, resolution_max, resolution}, Unique Clusters: {len(unique_clusters)}")
@@ -61,9 +61,9 @@ def find_res_binary(adata, resolution_min, resolution_max, num_clusters, method 
             
     return resolution, adata
 
-def plot_spatial(adata,save_path,title=None,group='leiden'):
+def plot_spatial(adata,save_path,title=None,group='cluster',set_scale = 6):
     scale = (adata.obsm['spatial'][:,0].max()-adata.obsm['spatial'][:,0].min())/(adata.obsm['spatial'][:,1].max()-adata.obsm['spatial'][:,1].min())
-    plt.rcParams["figure.figsize"] = (8*scale,8)
+    plt.rcParams["figure.figsize"] = (set_scale*scale,set_scale)
     if 'spatial' in adata.uns:
         sc.pl.spatial(adata, img_key="hires", color=[group],basis="spatial", title = title,size=1, alpha_img=0.8, alpha=0.5, show=False)
     else:
@@ -71,7 +71,6 @@ def plot_spatial(adata,save_path,title=None,group='leiden'):
     plt.savefig(os.path.join(save_path,str(title+'.png')), bbox_inches='tight')
     plt.show()
 
-#https://github.com/QIFEIDKN/STAGATE_pyG/blob/main/STAGATE_pyG/utils.py#L86
 def cal_spatial_net(adata, rad_cutoff=None, k_cutoff=None, map_id=True, verbose=True):
     #assert(model in ['Radius', 'KNN'])
     if verbose:
@@ -130,6 +129,7 @@ def edgelist2adj(edgelist, weight = None):
     
     return adjacency_matrix
 
+    
 def pruning_knn(knn_df,clustet_df):
     filtered_df = pd.DataFrame()
     if clustet_df.shape[1] == 2:
@@ -141,9 +141,7 @@ def pruning_knn(knn_df,clustet_df):
             rna = clustet_df.loc[cell1,'cluster_x']==clustet_df.loc[cell2,'cluster_x']
             img = clustet_df.loc[cell1,'cluster_y']==clustet_df.loc[cell2,'cluster_y']
             #print(cell1,cell2,rna,img)
-            # 检查当前行的Cell1和Cell2是否属于同一个cluster
             if (rna or img):
-                # 如果属于同一个leiden，则将当前行添加到过滤后的数据框中
                 filtered_df = filtered_df._append(row, ignore_index=True)
     elif clustet_df.shape[1] == 1:
         print('pruning use 1 modality')
@@ -151,11 +149,9 @@ def pruning_knn(knn_df,clustet_df):
             cell1 = row['Cell1']
             cell2 = row['Cell2']
 
-            # 检查当前行的Cell1和Cell2是否属于同一个leiden
             col_name = clustet_df.columns
             #print(cell1,cell2,int(clustet_df.loc[cell1,col_name]),int(clustet_df.loc[cell2,col_name]),(clustet_df.loc[cell1,col_name]==clustet_df.loc[cell2,col_name]).any())
             if (clustet_df.loc[cell1,col_name]==clustet_df.loc[cell2,col_name]).any():
-                # 如果属于同一个leiden，则将当前行添加到过滤后的数据框中
                 filtered_df = filtered_df._append(row, ignore_index=True)
     return filtered_df 
 
@@ -331,7 +327,7 @@ def find_res_step(adata, cluster_num = 12, res_range = np.around(np.arange(0.3,0
                 return res
 
         if not found:
-            print("未找到合适resolution") 
+            print("No suitable resolution found") 
             return res
             
     else:
