@@ -98,7 +98,7 @@ python StereoMMv1 -t -o StereoMMv1/example/toy_test --epochs 30 --lr 0.001 --rad
 
 ### Method 2: Run step by step in jupyter-notebook
 
-More details at: [StereoMM tutorial](Tutorials/turotial.ipynb)
+More details at: [StereoMM tutorial](./Tutorials/tutorial.ipynb)
 
 
 
