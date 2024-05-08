@@ -8,8 +8,6 @@
 
 [Overview](#Overview)
 
-[Environment preparation](#Environment preparation and package download)
-
 [Usage](#Usage)
 
 
