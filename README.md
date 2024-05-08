@@ -8,7 +8,7 @@
 
 [Overview](#Overview)
 
-[Environment preparation and package download](#StereoMM environment preparation and package download)
+[Environment preparation and package download](#Environment preparation and package download)
 
 [Usage](#Usage)
 
