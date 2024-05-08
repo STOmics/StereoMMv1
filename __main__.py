@@ -26,7 +26,7 @@ usage = '''
 
 Version %s  by Luo Bingying  %s
 
-Usage: %s -i <gem_file> -o <output_dir> [...]
+Usage: %s --rna_data <adata_file> --image_data <image_file> -o <output_dir> [...]
 
 ''' % (PROG_VERSION, PROG_DATE, os.path.basename(sys.argv[0]))
 
@@ -61,7 +61,7 @@ def main():
     ArgParser.add_argument("--brief_att", dest="brief_att",required=False, action='store_true', default=False, help="Attention layer with fewer parameters.")
     ArgParser.add_argument("--att_mode", dest="att_mode",required=False, action='store', default='cross', help="Attention layer type.")
     ArgParser.add_argument("--decoder", dest="customize_decoder",required=False, action='store_true', default=False, help="Construct the neural network decoder.")
-    ArgParser.add_argument("--gnn_type", dest="gnn_type",required=False, type=str, default="GAT", help="Graph Neural Network type.")
+    ArgParser.add_argument("--gnn_type", dest="gnn_type",required=False, type=str, default="GCN", help="Graph Neural Network type.")
     ArgParser.add_argument("--rna_weight", dest="rna_weight",required=False, type=int, default=1, help="Weight of rna attention to concat.")
     ArgParser.add_argument("--img_weight", dest="img_weight",required=False, type=int, default=1, help="Weight of img attention to concat.")
     ArgParser.add_argument("--dec", action="store_true", dest="dec", default=False, help="Whether to add DEC for cluster.")
@@ -86,19 +86,14 @@ def main():
     out_dir = para.output
     makedir(out_dir)
 
-    ### 配准图片的patch切割和特征提取
-    ## python process_img.py
-
     if para.toy_data:
-        # 创建节点数量和特征维度
-        num_nodes = 10
+        # Create the number of nodes and feature dimensions
+        num_nodes = 100
         num_features = 2000
 
-        # 随机生成节点特征
         img_tensor = torch.randn(num_nodes, num_features).double().to(device)
         rna_tensor = torch.randn(num_nodes, num_features).double().to(device)
 
-        # 随机生成边列表
         edge_index = torch.randint(num_nodes, (2, num_nodes * 2))
         edge_index = edge_index.to(device)
 
@@ -107,11 +102,11 @@ def main():
         # latent_size=10 
 
     else:
-        ###========== 各个模态特征处理 ==========###
+        ###========== Feature processing of each modality ==========###
         img_feat = pd.read_pickle(para.image_data)
         rna_adata = sc.read_h5ad(para.rna_data)
 
-        ### 单模态预处理
+        ### Single modality preprocessing
         rna_feat = extract_rna_feat(rna_adata,num_feat=2048,dim_reduction_method = para.dim_reduction_method)
         if not para.dim_reduction_method == 'pca':
             rna_feat = scale_data(rna_feat,scaler=para.scale)
@@ -129,14 +124,14 @@ def main():
         
         print('input image feature shape: %s. \n input rna feature shape: %s.' % (img_tensor.shape,rna_tensor.shape))
         
-        ### knn计算
+        ### knn
         graph_file_path = "knn.txt"
         if os.path.exists(os.path.join(out_dir,'knn.txt')):
             print('The KNN file already exists in %s, read it directly' % os.path.join(out_dir,'knn.txt')) 
         else:
             knn_df,id_cell_trans = cal_spatial_net(rna_adata,rad_cutoff=para.radiu_cutoff,k_cutoff=para.knn, map_id=True)
 
-            # 是否剪枝
+            # Whether to prune
             if para.purning_knn:
                 knn_df = purning_by_cluster(knn_df=knn_df,rna_data=rna_adata,img_data=img_feat,init_res=0.4)
 
@@ -153,11 +148,11 @@ def main():
     hidden_size=para.hidden_dims
     latent_size=para.latent_dim
 
-    # 检查用于图卷积的数据
+    # Inspecting the data used for graph convolution
     data_obj = Data(edge_index=edge_index, x=img_tensor)
     print('Data inspection results for graph convolutional networks: %s. \n' % data_obj.validate(raise_on_error=True))
 
-    ###========== 模型搭建 ==========###
+    ###========== CONSTRUCT ==========###
     import time
     start_time = time.time()
     
@@ -175,14 +170,14 @@ def main():
     fimodal = fimodal.double().to(device)
     fimodal.print_networks()
     current_memory = torch.cuda.memory_allocated() / 1024**2  # 转换为MB
-    print(f"当前阶段的CUDA内存消耗: {current_memory} MB")
+    print(f"CUDA memory consumption at the current stage: {current_memory} MB")
 
     # def count_parameters(model):
     #     return sum(p.numel() for p in model.parameters() if p.requires_grad)
     # num_params = count_parameters(fimodal)
     # print("Number of trainable parameters: ", num_params)
 
-    ###========== 模型训练 ==========###
+    ###========== TRAINING ==========###
     torch.cuda.empty_cache()
     #attn_out_dir = os.path.join(out_dir,'attn_weight')
     trainer = train(img_tensor, rna_tensor, edge_index, fimodal, custom_decoder = para.customize_decoder,n_epochs=para.epochs, opt=para.opt, lr=para.lr, weight_decay=0.0001, save_att=False, verbose=True)#, attn_out = attn_out_dir
@@ -196,13 +191,14 @@ def main():
     
     if para.verbose:
         # print(u'Current memory usage：%.4f GB' % (psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024 / 1024))
+        print(torch.cuda.max_memory_allocated())
         print(torch.cuda.memory_summary())
     torch.cuda.empty_cache()
     
     end_time = time.time()
     run_time = end_time - start_time
 
-    # 数据保存
+    # Save data
     emb = pd.DataFrame(emb)
     emb.to_pickle(os.path.join(out_dir,'embedding.pkl'))
     emb.to_csv(os.path.join(out_dir,'embedding.csv'))
@@ -213,7 +209,7 @@ def main():
     rna_emb = pd.DataFrame(rna_emb.cpu().detach().numpy())
     rna_emb.to_pickle(os.path.join(out_dir,'rna_embedding.pkl'))
 
-    # 绘制loss
+    # Draw the loss curve
     loss_values = pd.DataFrame(loss_values)
     loss_values.to_csv(os.path.join(out_dir,'loss.csv'))
     try:
@@ -221,16 +217,19 @@ def main():
     except:
         print('Error when plot_loss_curve')
     
-    # 查看聚类
+    # clustering
     if not para.toy_data:
+        emb.index = rna_adata.obs.index
+        emb.to_pickle(os.path.join(out_dir,'embedding.pkl'))
+        emb.to_csv(os.path.join(out_dir,'embedding.csv'))
         #spatial_coord = pd.read_csv('./spatial.csv',index_col=0)
-        vgae_adata = generate_adata(emb , spatial=rna_adata.obsm['spatial'])
+        stereomm_adata = generate_adata(emb , spatial=rna_adata.obsm['spatial'])
         
-        resolution, adata = find_res_binary(vgae_adata, resolution_min=0.1, resolution_max=1.2, num_clusters=para.n_cluster)
+        resolution, stereomm_adata = find_res_binary(stereomm_adata, resolution_min=0.1, resolution_max=1.2, num_clusters=para.n_cluster)
         print(f"Final Resolution: {resolution}")
-        plot_spatial(adata,out_dir,'stereoMM_domain')
+        plot_spatial(stereomm_adata,out_dir,'StereoMM_domain')
         
-        vgae_adata.write(os.path.join(out_dir,'emb_adata.h5ad'))
+        stereomm_adata.write(os.path.join(out_dir,'emb_adata.h5ad'))
 
     print('======= Finish!!!!!!======')
     print('RUNING TIME: %s' % (run_time))
