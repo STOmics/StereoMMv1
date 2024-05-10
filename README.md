@@ -14,9 +14,9 @@
 
 ## Overview
 
-**StereoMM** is a graph fusion model that can **integrate gene expression, histological images, and spatial location**. And the information interaction within modalities is strengthened by introducing an attention mechanism. 
+**StereoMM** is a graph fusion model that can **integrates gene expression, histological images, and spatial location**. And the information interaction within modalities is strengthened by introducing an attention mechanism. 
 
-StereoMM firstly performs information interaction on transcriptomic and imaging features through the attention module. The interactive features are input into the graph autoencoder together with the graph of spatial position, so that multimodal features are fused in a self-supervised manner. Finally, a low-dimensional, noise-reducing, higher-quality feature representation is obtained by extracting the features of the latent space. StereoMM contribute to accurately identify domains, uncover the more significant molecule characteristics among different domains and pave ways for downstream analysis.
+StereoMM firstly performs information interaction on transcriptomic and imaging features through the attention module. The interactive features are put into the graph autoencoder together with the graph of spatial position, so that multimodal features are fused in a self-supervised manner. Finally, a low-dimensional, noise-reducing, higher-quality feature representation is obtained by extracting the features of the latent space. StereoMM contributes to accurately identifying domains, uncovering the more significant molecule characteristics among different domains and paving ways for downstream analysis.
 
 
 
