@@ -10,6 +10,16 @@
 
 [Usage](#Usage)
 
+Citation
+---------
+
+If you use `stereosite`_ in your work, please cite the publication as follows:
+
+    **StereoMM: A Graph Fusion Model for Integrating Spatial Transcriptomic Data and Pathological Images**
+
+    Bingying Luo, Fei Teng, Guo Tang, Weixuan Chen, Chi Qu, Xuanzhu Liu, Xin Liu, Xing Liu, Huaqiang Huang, Yu Feng, Xue Zhang, Min Jian, Mei Li, Feng Xi, Guibo Li, Sha Liao, Ao Chen, Xun Xu, Jiajun Zhang
+
+    bioRxiv 2024.05.07.592486; doi: https://doi.org/10.1101/2024.05.04.592486
 
 
 ## Overview
