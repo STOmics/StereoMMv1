@@ -13,7 +13,7 @@
 Citation
 ---------
 
-If you use `stereoMM`_ in your work, please cite the publication as follows:
+If you use `stereoMM` in your work, please cite the publication as follows:
 
     **StereoMM: A Graph Fusion Model for Integrating Spatial Transcriptomic Data and Pathological Images**
 
