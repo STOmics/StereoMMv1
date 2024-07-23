@@ -1,5 +1,5 @@
 # StereoMM
-![StereoMM LOGO](https://github.com/STOmics/StereoMMv1/tree/StereoMM/img)
+![StereoMM LOGO](./img/StereoMM_logo.jpg)
 
 [![My Skills](https://skillicons.dev/icons?i=python,pytorch,r,bash,linux)](https://skillicons.dev)
 
