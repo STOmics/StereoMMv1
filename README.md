@@ -1,4 +1,5 @@
 # StereoMM
+![StereoMM LOGO](https://github.com/STOmics/StereoMMv1/tree/StereoMM/img)
 
 [![My Skills](https://skillicons.dev/icons?i=python,pytorch,r,bash,linux)](https://skillicons.dev)
 
@@ -15,7 +16,7 @@ Citation
 
 If you use `stereoMM` in your work, please cite the publication as follows:
 
-    **StereoMM: A Graph Fusion Model for Integrating Spatial Transcriptomic Data and Pathological Images**
+    StereoMM: A Graph Fusion Model for Integrating Spatial Transcriptomic Data and Pathological Images
 
     Bingying Luo, Fei Teng, Guo Tang, Weixuan Chen, Chi Qu, Xuanzhu Liu, Xin Liu, Xing Liu, Huaqiang Huang, Yu Feng, Xue Zhang, Min Jian, Mei Li, Feng Xi, Guibo Li, Sha Liao, Ao Chen, Xun Xu, Jiajun Zhang
 
@@ -73,7 +74,7 @@ StereoMMv1/
 Clone the project to your computer:
 
 ```
-git clone https://github.com/STOmics/StereoMMv1
+git clone https://github.com/STOmics/StereoMMv1.git
 ```
 
 
