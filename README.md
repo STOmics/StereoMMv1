@@ -30,6 +30,15 @@ If you use `stereoMM` in your work, please cite the publication as follows:
 StereoMM firstly performs information interaction on transcriptomic and imaging features through the attention module. The interactive features are put into the graph autoencoder together with the graph of spatial position, so that multimodal features are fused in a self-supervised manner. Finally, a low-dimensional, noise-reducing, higher-quality feature representation is obtained by extracting the features of the latent space. StereoMM contributes to accurately identifying domains, uncovering the more significant molecule characteristics among different domains and paving ways for downstream analysis.
 
 
+## NEWS
+
+We remain committed to advancing the foundational pathology model, further refining its utility as a robust tool for morphological feature extraction. To this end, we have introduced ‘CHIEF,’ a new feature that can be seamlessly activated using the `--model` parameter within `StereoMMv1/process_img.py`.
+
+```
+python StereoMMv1/process_img.py -a StereoMMv1/example/adata.h5ad -i StereoMMv1/example/image.tif -o StereoMMv1/example/image_out -m CHIEF -b 100 -c 150
+```
+
+
 
 ## Environment preparation and package download
 
@@ -62,6 +71,7 @@ StereoMMv1/
 ├── process_img.py
 ├── print_cuda.py
 ├── torch_pths
+│   ├── CHIEF_CTransPath.pth
 │   └── resnet50-19c8e357.pth
 ├── example
 │   ├── image.tif
