@@ -150,27 +150,32 @@ class MyDataset(Dataset):
         # assert len(self.image_list) == len(self.label_list)
         return len(self.imgs)   
     
-def load_model():
-    model_com = models.resnet50(pretrained=False)
+def load_model(model_name = 'resnet50'):
     current_path = os.getcwd()
-    if 'StereoMMv1' in current_path:
-        pth_path = os.path.join(current_path, "torch_pths/resnet50-19c8e357.pth")
-    else:
-        pth_path = os.path.join(current_path, "StereoMMv1/torch_pths/resnet50-19c8e357.pth")
-    model_com.load_state_dict(torch.load(pth_path))
-    num_features = model_com.fc.in_features
-
-    ### strip the last layer
-    feature_extractor = torch.nn.Sequential(*list(model_com.children())[:-1])
-    # Get the feature extractor up to layer4
-    # feature_extractor_layer4 = torch.nn.Sequential(*list(model.children())[:-2])
-
-    model_com.to(device)
-    model_com.eval()
+    if modal_name == 'resnet50':
+        model_com = models.resnet50(pretrained=False)
+        if 'StereoMMv1' in current_path:
+            pth_path = os.path.join(current_path, "torch_pths/resnet50-19c8e357.pth")
+        else:
+            pth_path = os.path.join(current_path, "StereoMMv1/torch_pths/resnet50-19c8e357.pth")
+        model_com.load_state_dict(torch.load(pth_path))
+        num_features = model_com.fc.in_features
+        ### strip the last layer
+        feature_extractor = torch.nn.Sequential(*list(model_com.children())[:-1])
+    elif modal_name == 'CHIEF':
+        import timm
+        feature_extractor = timm.create_model('swin_tiny_patch4_window7_224', embed_layer=ConvStem, pretrained=False)
+        feature_extractor.head = nn.Identity()
+        if 'StereoMMv1' in current_path:
+            pth_path = os.path.join(current_path, "torch_pths/CHIEF_CTransPath.pth")
+        else:
+            pth_path = os.path.join(current_path, "StereoMMv1/torch_pths/CHIEF_CTransPath.pth")
+        td = torch.load(pth_path)
+        feature_extractor.load_state_dict(td['model'], strict=True)
 
     feature_extractor.to(device)
     feature_extractor.eval()
-    return(feature_extractor,model_com)
+    return(feature_extractor)
 
 def feature_extractor(model,dataset):
     feat_outputs = []
@@ -295,6 +300,7 @@ def main():
     ArgParser.add_argument("-a", "--adata", action="store", dest="input", required=True, type=str, help="path of adata file")
     ArgParser.add_argument("-i", "--image", action="store", dest="image", required=True, type=str, help="path of H&E image file")
     ArgParser.add_argument("-o", "--output", action="store", dest="output", required=True, type=str, help="output folder")
+    ArgParser.add_argument("-m", "--model", action="store", dest="model_name", required=True, type=str, help="feature ectract model")
     ArgParser.add_argument("-b", "--bin_size", action="store", dest="bin_size", required=True, type=int, help="bin size of adata")
     ArgParser.add_argument("-c", "--crop_size", action="store", dest="crop_size", required=True, type=int, help="crop size of image")
     ArgParser.add_argument("-n", "--num_cluster", action="store", dest="num_cluster", required=False, default=10, type=int, help="number of cluster")
@@ -329,7 +335,8 @@ def main():
         print(type(image_raw), image_raw.size)
         if para.slide_gem:
         #if int(rna_adata.obs.x.max()-rna_adata.obs.x.min()+para.bin_size)< img.size[0]:
-            cbox = (int(rna_adata.obs.x.min()-50), int(rna_adata.obs.y.min()-50), int(rna_adata.obs.x.max()+50), int(rna_adata.obs.y.max()+50))
+            harfbin = int(para.bin_size)/2
+            cbox = (int(rna_adata.obs.x.min()-harfbin), int(rna_adata.obs.y.min()-harfbin), int(rna_adata.obs.x.max()+harfbin), int(rna_adata.obs.y.max()+harfbin))
             image_added = image_raw.crop(cbox)  
         else:
             image_added = image_raw.copy()
@@ -354,7 +361,7 @@ def main():
         print('The image feature extract has been completed. %s, read it directly' % os.path.join(para.output,'img_feat.pkl')) 
         feat_outputs = pd.read_pickle(os.path.join(para.output,'img_feat.pkl'))
     else:
-        feature_extractor,model_com = load_model()
+        feature_extractor = load_model(para.model_name)
         # if torch.cuda.device_count() > 1:
         #     print("Turn on parallelism: use multiple GPUs for training")
         #     feature_extractor = torch.nn.DataParallel(feature_extractor)
@@ -370,11 +377,7 @@ def main():
     resolution, img_adata = find_res_binary(img_adata, resolution_min=0.1, resolution_max=1.2, num_clusters=para.num_cluster,key_added='cluster')
     print(f"Final Resolution: {resolution}")
     plot_spatial(img_adata,para.output,title ='H&E morphology featuer domain',group='cluster')
-    # res_range = para.res_range
-    # res = choose_res(img_adata,res_range,method = 'num_cluster',cluster_num = 10,criterion = 'CH_score')
-    # img_adata = definite_res(img_adata,res,para.output,plot_file='image_spatial_plot.png',title='image_feat_leiden')
-    # img_adata = find_clusters(img_adata,cluster_range=12,verbose=True)
-    # img_adata = definite_res(img_adata, img_adata.uns['best_resolution'],para.output,plot_file='choose_res_spatial_plot.png',title=None)
+
     img_adata.write(os.path.join(para.output,'img_adata.h5ad'))
     
 if __name__ == "__main__":
