@@ -18,9 +18,9 @@ If you use `stereoMM` in your work, please cite the publication as follows:
 
     StereoMM: A Graph Fusion Model for Integrating Spatial Transcriptomic Data and Pathological Images
 
-    Bingying Luo, Fei Teng, Guo Tang, Weixuan Chen, Chi Qu, Xuanzhu Liu, Xin Liu, Xing Liu, Huaqiang Huang, Yu Feng, Xue Zhang, Min Jian, Mei Li, Feng Xi, Guibo Li, Sha Liao, Ao Chen, Xun Xu, Jiajun Zhang
+    Bingying Luo, Fei Teng, Guo Tang, Weixuan Chen, Xing Liu, Jinmiao Chen, Chi Qu, Xuanzhu Liu, Xin Liu, Huaqiang Huang, Yu Feng, Xue Zhang, Min Jian, Mei Li, Feng Xi, Guibo Li, Sha Liao, Ao Chen, Weimiao Yu, Xun Xu, Jiajun Zhang
 
-    bioRxiv 2024.05.04.592486; doi: https://doi.org/10.1101/2024.05.04.592486
+    2025 May 1;26(3):bbaf210; doi: 10.1093/bib/bbaf210.
 
 
 ## Overview
